@@ -8,8 +8,8 @@ app.send = function(data) {
     console.log("=>\""+data+'"');
 };
 app.initializeDom = function() {
-    document.body.onkeypress = function(e) {
-        app.send('k|' + e.key);
-    };    
+    document.body.onkeydown = function(e) {
+        app.send('k|' + e.code);
+    };
 };
 window.onload = app.init;

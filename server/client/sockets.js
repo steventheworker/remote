@@ -1,4 +1,4 @@
-var sock = new SockJS('http://localhost:8000/sockets');
+var sock = new SockJS('http://'+ window.location.host  +'/sockets');
 sock.onopen = function() {
     app.socket = sock;
     console.log('open');
