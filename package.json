@@ -3,7 +3,7 @@
   "version": "0.0.0-unreleasable",
   "dependencies": {
     "node-static": "0.5.9",
-    "robotjs": "^0.6.0",
+    "python-shell": "^1.0.8",
     "sockjs": "*"
   },
   "scripts": {

@@ -48,8 +48,6 @@ server.addListener('request', function(req, res) {
 server.addListener('upgrade', function(req,res){
     res.end();
 });
-
 sockjs_echo.installHandlers(server, {prefix:'/sockets'});
-
 console.log(' [*] Listening on 0.0.0.0:8000' );
 server.listen(8000, '0.0.0.0');
