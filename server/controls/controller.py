@@ -11,10 +11,9 @@ SpecialChars = {
     "CapsLock": Key.caps_lock,
     "ControlRight": Key.ctrl_r,
     "ControlLeft": Key.ctrl_l,
-    #"ContextMenu": ,
-    #"MetaLeft": ,
-    #"MetaRight": ,
-    #home, end, insert, pageupdown, delete, numlock, scrollock, prntscreen, pausebreak, keypadenter&0-9
+    "ContextMenu": Key.menu,
+    "MetaLeft": Key.cmd,
+    "MetaRight": Key.cmd_r,
     "Slash": "/",
     "Period": ".",
     "Comma": ",",
@@ -30,10 +29,27 @@ SpecialChars = {
     "ArrowLeft": Key.left,
     "ArrowRight": Key.right,
     "ArrowUp": Key.up,
-    #dont get sent vvvvv
     "AltLeft": Key.alt_l,
     "AltRight": Key.alt_r,
-    #windowskey, tab
+    "WakeUp": "Key.fn", #doesnt exist!!!
+    "Tab": Key.tab,
+    "Insert": Key.insert,
+    "Delete": Key.delete,
+    "Home": Key.home,
+    "End": Key.end,
+    "F1": Key.f1,
+    "F2": Key.f2,
+    "F3": Key.f3,
+    "F4": Key.f4,
+    "F5": Key.f5,
+    "F6": Key.f6,
+    "F7": Key.f7,
+    "F8": Key.f8,
+    "F9": Key.f9,
+    "F10": Key.f10,
+    "F11": Key.f11,
+    "F12": Key.f12
+    #pageupdown, numlock, scrollock, prntscreen, pausebreak
 }
 def press(char):
     if char.startswith('Digit'):
@@ -44,4 +60,3 @@ def press(char):
         char = SpecialChars[char]
     keyboard.press(char)
     keyboard.release(char)
-press('ArrowUp')
