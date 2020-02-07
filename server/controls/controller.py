@@ -48,8 +48,10 @@ SpecialChars = {
     "F9": Key.f9,
     "F10": Key.f10,
     "F11": Key.f11,
-    "F12": Key.f12
-    #pageupdown, numlock, scrollock, prntscreen, pausebreak
+    "F12": Key.f12,
+    "PageDown": Key.page_down,
+    "PageUp": Key.page_up
+    #numlock, scrollock, prntscreen, pausebreak
 }
 def press(char):
     if char.startswith('Digit'):
