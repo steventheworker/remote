@@ -9,6 +9,7 @@ app.send = function(data) {
 };
 app.initializeDom = function() {
     document.body.onkeydown = function(e) {
+        if (e.code === "WakeUp") return;
         app.send('k|' + e.code);
     };
 };
