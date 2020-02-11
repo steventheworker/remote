@@ -1,4 +1,11 @@
-const app = {};
+window.app = {};
+
+import {fn} from "./frankenquery.js";
+window.$ = fn;
+
+import {codes} from "./KeyMapping.js";
+app.keyCodes = codes;
+
 app.send = function(data) {
     if (!app.socket) return;
     app.socket.send(data);

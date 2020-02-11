@@ -1,4 +1,4 @@
-app.keyCodes = {
+export const codes = {
     "0":"48",
     "1":"49",
     "2":"50",
