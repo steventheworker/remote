@@ -1,5 +1,5 @@
 {
-  "name": "sockjs-echo",
+  "name": "pynode-rat",
   "version": "0.0.0-unreleasable",
   "dependencies": {
     "node-static": "0.5.9",
