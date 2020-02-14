@@ -5,10 +5,9 @@ const sockets = new Map(),
     node_static = require('node-static');
 const events = require('./events');
 function processData(socketid, message) {
-    let splint = message.split('|');
-    const event = splint.splice(0, 1);
-    splint = splint.join('|');
-    if (events[event]) events[event](sockets.get(socketid), splint);
+    let data = message.split('|');
+    const event = data.splice(0, 1);
+    if (events[event]) events[event].apply(null, [sockets.get(socketid), ...data]);
     console.log("<=" + message)
 }
 

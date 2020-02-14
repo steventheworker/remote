@@ -53,12 +53,20 @@ SpecialChars = {
     "PageUp": Key.page_up
     #numlock, scrollock, prntscreen, pausebreak
 }
-def press(char):
+def pressRelease(char, type):
+    if type == 1 or type == 3:
+        keyboard.press(char)
+    if type == 2 or type == 3:
+        keyboard.release(char)
+def press(char, type=3, shift='false'):
     if char.startswith('Digit'):
         char = char[5:]
     elif char.startswith('Key'):
         char = char[3:]
     elif SpecialChars[char]:
         char = SpecialChars[char]
-    keyboard.press(char)
-    keyboard.release(char)
+    if shift == 'true':
+        with keyboard.pressed(Key.shift):
+            pressRelease(char, type)
+    else:
+        pressRelease(char, type)

@@ -37,9 +37,10 @@ app.listenKeys = function(e) {
         if (isNaN(Number(key))) key = 'Key'+key;
         else key = 'Digit'+key;
     }
+    if (!e.shiftKey) key = key.substr(0, key.length - 1) + key[key.length - 1].toLowerCase();
+    if (!key || key === "WakeUp" || key.startsWith('Shift')) return; //python library has no fn (aka WakeUp)
     $('body').append('<div>'+e.type+':'+key+'::'+(e.keyCode || e.charCode || e.which)+'</div>')
-    if (!key || key === "WakeUp") return; //python library has no fn (aka WakeUp)
-    app.send('k|' + key);
+    app.send('k|' + key + '|'  + (e.shiftKey ? 1 : ""));
     if (!e.code) setTimeout(app.delFirstKey, 1000);
 };
 app.initializeDom = function() {
