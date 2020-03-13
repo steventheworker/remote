@@ -7,6 +7,7 @@ const events = require('./events');
 function processData(socketid, message) {
     let data = message.split('|');
     const event = data.splice(0, 1);
+    data.push(event);
     let fn = events[event];
     if (fn) {
         if (typeof fn === 'string') fn = events[fn];
