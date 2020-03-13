@@ -1,14 +1,18 @@
-let {PythonShell} = require('python-shell')
+let {PythonShell} = require('python-shell');
 
 module.exports = {
-    'k': function(socket, data, shift) {
+    'ku': 'k',
+    'kd': 'k',
+    'k': function(socket, data, shift, event) {
         if (!data) return;
-        PythonShell.run('./controls/press-release.py',
-        {
+        let fnType = 'press-release';
+        if (event === 'ku') fnType = 'release';
+        if (event === 'kd') fnType = 'press';
+        PythonShell.run('./controls/'+fnType+'.py', {
             args: [data, shift ? true : false]
         }, function (err, results) {
             if (err) throw err;
         });
-        socket.write('k|' + data);
-    }
+        socket.write(event + '|' + data);
+    },
 };

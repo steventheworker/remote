@@ -39,13 +39,17 @@ app.listenKeys = function(e) {
     }
     if (!e.shiftKey) key = key.substr(0, key.length - 1) + key[key.length - 1].toLowerCase();
     if (!key || key === "WakeUp" || key.startsWith('Shift')) return; //python library has no fn (aka WakeUp)
-    $('body').append('<div>'+e.type+':'+key+'::'+(e.keyCode || e.charCode || e.which)+'</div>')
-    app.send('k|' + key + '|'  + (e.shiftKey ? 1 : ""));
+    $('body').append('<div>'+e.type+':'+key+'::'+(e.keyCode || e.charCode || e.which)+'</div>');
+    let pressRelease = 'd'; //default since e can be textInput or keydown
+    if (e.type === "keyup") pressRelease = 'u';
+    
+    app.send('k'+pressRelease+'|' + key + '|'  + (e.shiftKey ? 1 : ""));
     if (!e.code) setTimeout(app.delFirstKey, 1000);
 };
 app.initializeDom = function() {
     $('body')
     .keydown(app.listenKeys)
+    .keyup(app.listenKeys)
     .on("textInput", "#is_mobile", app.listenKeys)
     .on('click touchend', function() {
         $('#is_mobile')[0].focus();

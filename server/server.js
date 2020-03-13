@@ -7,7 +7,11 @@ const events = require('./events');
 function processData(socketid, message) {
     let data = message.split('|');
     const event = data.splice(0, 1);
-    if (events[event]) events[event].apply(null, [sockets.get(socketid), ...data]);
+    let fn = events[event];
+    if (fn) {
+        if (typeof fn === 'string') fn = events[fn];
+        fn.apply(null, [sockets.get(socketid), ...data]);
+    }
     console.log("<=" + message)
 }
 
