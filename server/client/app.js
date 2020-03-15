@@ -1,4 +1,9 @@
-window.app = {};
+window.app = {
+    queue: [],
+    keys: {},
+    send_t_millisecs: 175,
+    last_send_t: 0
+};
 
 import {fn} from "./frankenquery.js";
 window.$ = fn;
@@ -17,11 +22,48 @@ app.send = function(data) {
     if (!app.socket) return;
     app.socket.send(data);
     console.log("=>\""+data+'"');
-    $('body').append('<div>=&gt;"'+data+'"</div>')
+    $('body').append('<div>=&gt;"'+data+'"</div>');
 };
 app.delFirstKey = function() {
   const el = $('#is_mobile');
   el.val(el.val().substr(1));
+};
+app.processQueue = function() {
+    console.log(1)
+    if (!app.queue.length) return;
+    const last = app.queue[app.queue.length - 1];
+    const deltaT = last.t - app.last_send_t;
+    const curT = new Date() / 1;
+    let delay_processing = false;
+    function do_process() {
+        let dataString = '';
+        for (let i in app.queue) {
+            let cur = app.queue[i];
+            let {pressRelease, key, shift, t} = cur;
+            dataString += pressRelease + "~" + key + "~" + shift + "~" + (t-app.queue[0].t) + ",";
+        }
+        dataString = dataString.slice(0, -1);
+        app.send('ks|' + dataString);
+        app.last_send_t = curT;
+        app.queue = [];
+    }
+    if (last.pressRelease === 'u') {
+        if (deltaT < app.send_t_millisecs || curT - app.send_t_millisecs < 333) delay_processing = true;
+        else do_process();
+    }
+    if (last.pressRelease === 'd' || delay_processing) {
+        if (curT - last.t > app.send_t_millisecs) return do_process();
+        clearTimeout(window.key_processing);
+        window.key_processing = setTimeout(app.processQueue, 333 - (curT - deltaT));
+     }
+};
+app.addQueue = function(pressRelease, key, shift) {
+    const t = new Date() / 1;
+    app.queue.push( {
+        pressRelease, key, shift,
+        t
+    });
+    app.processQueue();
 };
 app.listenKeys = function(e) {
     const char = e.data;
@@ -39,12 +81,19 @@ app.listenKeys = function(e) {
     }
     if (!e.shiftKey) key = key.substr(0, key.length - 1) + key[key.length - 1].toLowerCase();
     if (!key || key === "WakeUp" || key.startsWith('Shift')) return; //python library has no fn (aka WakeUp)
-    $('body').append('<div>'+e.type+':'+key+'::'+(e.keyCode || e.charCode || e.which)+'</div>');
-    let pressRelease = 'd'; //default since e can be textInput or keydown
-    if (e.type === "keyup") pressRelease = 'u';
-    
-    app.send('k'+pressRelease+'|' + key + '|'  + (e.shiftKey ? 1 : ""));
+    let pressRelease = (e.type === "keyup") ? "u" : "d"; //default to "d" since e can be textInput or keydown        
+
     if (!e.code) setTimeout(app.delFirstKey, 1000);
+
+    function add2queue() {
+        app.keys[key] = 1;
+        app.addQueue(pressRelease, key, e.shiftKey);
+    }
+    if (pressRelease === 'u') {
+        $('body').append('<div>'+e.type+':'+key+'::'+(e.keyCode || e.charCode || e.which)+'</div>');
+        add2queue();
+        delete app.keys[key];
+    } else if (!app.keys[key]) add2queue();
 };
 app.initializeDom = function() {
     $('body')

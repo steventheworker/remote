@@ -5,3 +5,4 @@ package-lock.json
 server/__pycache__
 server/controls/__pycache__
 .idea
+venv/
