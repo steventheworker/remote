@@ -15,8 +15,8 @@ module.exports = {
         });
         socket.write(event + '|' + key);
     },
-    'ks': function(socket, data) {
-        PythonShell.run('./controls/ks.py', {
+    'es': function(socket, data) {
+        PythonShell.run('./controls/es.py', {
             args: [data]
         }, function (err, results) {
             if (err) throw err;

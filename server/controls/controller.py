@@ -1,5 +1,7 @@
 from pynput.keyboard import Key, Controller
 keyboard = Controller()
+from pynput.mouse import Button, Controller
+mouse = Controller()
 
 SpecialChars = {
     "Space": Key.space,
@@ -53,6 +55,7 @@ SpecialChars = {
     "PageUp": Key.page_up
     #numlock, scrollock, prntscreen, pausebreak
 }
+
 def pressRelease(char, type):
     if type == 1 or type == 3:
         keyboard.press(char)
@@ -70,3 +73,19 @@ def press(char, type=3, shift='false'):
             pressRelease(char, type)
     else:
         pressRelease(char, type)
+
+def move_mouse(Dx, Dy):
+    mouse.move(Dx, Dy)
+def set_mouse(x, y):
+    mouse.position = (x, y)
+def press_mouse(rightButton):
+    btn = Button.left
+    if rightButton: btn = Button.right
+    mouse.press(btn)
+def release_mouse(rightButton):
+    btn = Button.left
+    if rightButton: btn = Button.right
+    mouse.release(btn)
+def pressRelease_mouse(rightButton):
+    press_mouse(rightButton)
+    release_mouse(rightButton)

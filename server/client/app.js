@@ -29,7 +29,7 @@ app.delFirstKey = function() {
   el.val(el.val().substr(1));
 };
 app.processQueue = function() {
-    console.log(1)
+    console.log('\t\t\t\t\t\t\t\t\t\t\t...\t\t\t\t\t\tprocessing\t\t\t\t\t\t\t\t...\t...')
     if (!app.queue.length) return;
     const last = app.queue[app.queue.length - 1];
     const deltaT = last.t - app.last_send_t;
@@ -40,14 +40,25 @@ app.processQueue = function() {
         for (let i in app.queue) {
             let cur = app.queue[i];
             let {pressRelease, key, shift, t} = cur;
-            dataString += pressRelease + "~" + key + "~" + shift + "~" + (t-app.queue[0].t) + ",";
+            dataString += (t - app.queue[0].t) + "~"; //add T
+            if (!cur.a) {
+                //keyboard event
+                dataString += pressRelease + "~" + key + "~" + shift + ",";
+            } else {
+                //mouse event
+                let [eventType, x, y] = cur.a;
+                let prefix = "", extraData = "";
+                if (!eventType.startsWith('p') && !eventType.startsWith('r')) extraData += x + "~" + y;
+                if (extraData) prefix = "~";
+                dataString += eventType + prefix + extraData + ",";
+            }
         }
         dataString = dataString.slice(0, -1);
-        app.send('ks|' + dataString);
+        app.send('es|' + dataString);
         app.last_send_t = curT;
         app.queue = [];
     }
-    if (last.pressRelease === 'u') {
+    if (last.pressRelease === 'u' || !last.pressRelease /* mouse event */) {
         if (deltaT < app.send_t_millisecs || curT - app.send_t_millisecs < 333) delay_processing = true;
         else do_process();
     }
@@ -57,12 +68,12 @@ app.processQueue = function() {
         window.key_processing = setTimeout(app.processQueue, 333 - (curT - deltaT));
      }
 };
-app.addQueue = function(pressRelease, key, shift) {
+app.addQueue = function(...a) {
+    const [pressRelease, key, shift] = a;
     const t = new Date() / 1;
-    app.queue.push( {
-        pressRelease, key, shift,
-        t
-    });
+    if (pressRelease === "u" || pressRelease === "d") app.queue.push({pressRelease, key, shift, t}); else {
+        app.queue.push({a, t});
+    }
     app.processQueue();
 };
 app.listenKeys = function(e) {
@@ -80,11 +91,9 @@ app.listenKeys = function(e) {
         else key = 'Digit'+key;
     }
     if (!e.shiftKey) key = key.substr(0, key.length - 1) + key[key.length - 1].toLowerCase();
-    if (!key || key === "WakeUp" || key.startsWith('Shift')) return; //python library has no fn (aka WakeUp)
+    if (!key || key === "WakeUp" || key.startsWith('Shift') || key === "Hyper") return; //python library has no fn (aka WakeUp)           same with hyper
     let pressRelease = (e.type === "keyup") ? "u" : "d"; //default to "d" since e can be textInput or keydown        
-
     if (!e.code) setTimeout(app.delFirstKey, 1000);
-
     function add2queue() {
         app.keys[key] = 1;
         app.addQueue(pressRelease, key, e.shiftKey);
@@ -97,15 +106,41 @@ app.listenKeys = function(e) {
 };
 app.initializeDom = function() {
     $('body')
-    .keydown(app.listenKeys)
-    .keyup(app.listenKeys)
-    .on("textInput", "#is_mobile", app.listenKeys)
-    .on('click touchend', function() {
-        $('#is_mobile')[0].focus();
-    });
+        .keydown(app.listenKeys)
+        .keyup(app.listenKeys)
+        .on("textInput", "#is_mobile", app.listenKeys)
+        .on("mouseup", ".screen_container", app.mouse_up)
+        .on("mousedown", ".screen_container", app.mouse_down)
+        .on("mouseover", ".screen_container", app.mouse_start)
+        .on("mousemove", ".screen_container", app.mouse_move)
+        .on('click touchend', function() {
+            $('#is_mobile')[0].focus();
+        });
+};
+
+const off = $('.screen_container').offset();
+window.off = off;
+app.mouse_down = function(e) {
+    if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
+    const event_type = "p" + ((e.which === 1) ? "l" : "r"); //p = press = down
+    app.addQueue(event_type);
+};
+app.mouse_up = function(e) {
+    if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
+    const event_type = "r" + ((e.which === 1) ? "l" : "r"); //r = release = up
+    app.addQueue(event_type);
+};
+app.mouse_move = function(e) {
+    const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
+    const delta = {x: touch.x - app.lastTouch.x, y: touch.y - app.lastTouch.y};
+    app.lastTouch = touch;
+    app.addQueue("mm", delta.x, delta.y);
+};
+app.mouse_start = function(e) {
+    const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
+    app.lastTouch = touch;
+    app.addQueue("sm", touch.x, touch.y);
 };
 
 app.prerender();
-$(function() {
-    app.initializeDom();
-});
+$(function() {app.initializeDom();});
