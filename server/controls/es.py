@@ -10,7 +10,7 @@ events = sys.argv[1].split(',')
 for _e in events:
     e = _e.split('~')
     t = int(e[0]) / 1000
-    if e[1] == "u" and e[1] == "d":
+    if e[1] == "u" or e[1] == "d":
         #keyboard event
         numType = 1 if e[1] == "d" else 2 #key#d(own) = press, #key#u(p) = release
         key = e[2]
