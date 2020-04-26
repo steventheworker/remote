@@ -103,6 +103,35 @@ app.listenKeys = function(e) {
     } else if (!app.keys[key]) add2queue();
 };
 app.initializeDom = function() {
+    app.mouse_down = function(e) {
+        if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
+        const event_type = "p" + ((e.which === 1) ? "l" : "r"); //p = press = down
+        app.addQueue(event_type);
+    };
+    app.mouse_up = function(e) {
+        if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
+        const event_type = "r" + ((e.which === 1) ? "l" : "r"); //r = release = up
+        app.addQueue(event_type);
+    };
+    app.mouse_move = function(e) {
+        const container = $('.screen_container'),
+            off = container.offset();
+        const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
+        touch.x = (touch.x / container.width());
+        touch.y = (touch.y / container.height());
+        const delta = {x: touch.x - app.lastTouch.x, y: touch.y - app.lastTouch.y};
+        app.lastTouch = touch;
+        app.addQueue("mm", delta.x, delta.y);
+    };
+    app.mouse_start = function(e) {
+        const container = $('.screen_container'),
+            off = container.offset();
+        const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
+        touch.x = (touch.x / container.width());
+        touch.y = (touch.y / container.height());
+        app.lastTouch = touch;
+        app.addQueue("sm", touch.x, touch.y);
+    };
     $('body')
         .keydown(app.listenKeys)
         .keyup(app.listenKeys)
@@ -115,36 +144,13 @@ app.initializeDom = function() {
             $('#is_mobile')[0].focus();
         });
 };
-
-app.mouse_down = function(e) {
-    if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
-    const event_type = "p" + ((e.which === 1) ? "l" : "r"); //p = press = down
-    app.addQueue(event_type);
-};
-app.mouse_up = function(e) {
-    if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
-    const event_type = "r" + ((e.which === 1) ? "l" : "r"); //r = release = up
-    app.addQueue(event_type);
-};
-app.mouse_move = function(e) {
-    const container = $('.screen_container'),
-          off = container.offset();
-    const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
-    touch.x = (touch.x / container.width());
-    touch.y = (touch.y / container.height());
-    const delta = {x: touch.x - app.lastTouch.x, y: touch.y - app.lastTouch.y};
-    app.lastTouch = touch;
-    app.addQueue("mm", delta.x, delta.y);
-};
-app.mouse_start = function(e) {
-    const container = $('.screen_container'),
-          off = container.offset();
-    const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
-    touch.x = (touch.x / container.width());
-    touch.y = (touch.y / container.height());
-    app.lastTouch = touch;
-    app.addQueue("sm", touch.x, touch.y);
+app.screenTimeout = null;
+app.refreshScreen = function() {
+    document.screen.scr = './screen.png?t=' + (new Date() / 1);
 };
 
 app.prerender();
-$(function() {app.initializeDom();});
+$(function() {
+    app.initializeDom();
+    app.send('init');
+});
