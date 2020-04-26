@@ -48,7 +48,7 @@ app.processQueue = function() {
                 //mouse event
                 let [eventType, x, y] = cur.a;
                 let prefix = "", extraData = "";
-                if (!eventType.startsWith('p') && !eventType.startsWith('r')) extraData += x + "~" + y;
+                if (!eventType.startsWith('p') && !eventType.startsWith('r')) extraData += x.toFixed(2) + "~" + y.toFixed(2);
                 if (extraData) prefix = "~";
                 dataString += eventType + prefix + extraData + ",";
             }
@@ -118,8 +118,6 @@ app.initializeDom = function() {
         });
 };
 
-const off = $('.screen_container').offset();
-window.off = off;
 app.mouse_down = function(e) {
     if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
     const event_type = "p" + ((e.which === 1) ? "l" : "r"); //p = press = down
@@ -131,13 +129,21 @@ app.mouse_up = function(e) {
     app.addQueue(event_type);
 };
 app.mouse_move = function(e) {
+    const container = $('.screen_container'),
+          off = container.offset();
     const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
+    touch.x = (touch.x / container.width());
+    touch.y = (touch.y / container.height());
     const delta = {x: touch.x - app.lastTouch.x, y: touch.y - app.lastTouch.y};
     app.lastTouch = touch;
     app.addQueue("mm", delta.x, delta.y);
 };
 app.mouse_start = function(e) {
+    const container = $('.screen_container'),
+          off = container.offset();
     const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
+    touch.x = (touch.x / container.width());
+    touch.y = (touch.y / container.height());
     app.lastTouch = touch;
     app.addQueue("sm", touch.x, touch.y);
 };
