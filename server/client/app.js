@@ -22,7 +22,6 @@ app.send = function(data) {
     if (!app.socket) return;
     app.socket.send(data);
     console.log("=>\""+data+'"');
-    $('body').append('<div>=&gt;"'+data+'"</div>');
 };
 app.delFirstKey = function() {
   const el = $('#is_mobile');
@@ -48,7 +47,7 @@ app.processQueue = function() {
                 //mouse event
                 let [eventType, x, y] = cur.a;
                 let prefix = "", extraData = "";
-                if (!eventType.startsWith('p') && !eventType.startsWith('r')) extraData += x.toFixed(2) + "~" + y.toFixed(2);
+                if (!eventType.startsWith('p') && !eventType.startsWith('r')) extraData += x.toFixed(3) + "~" + y.toFixed(3);
                 if (extraData) prefix = "~";
                 dataString += eventType + prefix + extraData + ",";
             }
@@ -99,7 +98,6 @@ app.listenKeys = function(e) {
         app.addQueue(pressRelease, key, e.shiftKey);
     }
     if (pressRelease === 'u') {
-        $('body').append('<div>'+e.type+':'+key+'::'+(e.keyCode || e.charCode || e.which)+'</div>');
         add2queue();
         delete app.keys[key];
     } else if (!app.keys[key]) add2queue();
