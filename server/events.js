@@ -7,7 +7,7 @@ let isProcessing = false;
 function processQueue() {
     if (isProcessing) return;
     const t = new Date() / 1;
-    const firstT = queue[0][0];
+    const firstT = queue[0] ? queue[0][0] : 0;
     if (t - firstT < LAPSE_MS) {
         isProcessing = true;
         return setTimeout(function() {
