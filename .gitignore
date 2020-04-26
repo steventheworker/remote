@@ -4,5 +4,6 @@ node_modules
 package-lock.json
 server/__pycache__
 server/controls/__pycache__
+server/client/screen.png
 .idea
 venv/
