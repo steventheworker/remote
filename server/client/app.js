@@ -122,6 +122,7 @@ app.initializeDom = function() {
         const delta = {x: touch.x - app.lastTouch.x, y: touch.y - app.lastTouch.y};
         app.lastTouch = touch;
         app.addQueue("mm", delta.x, delta.y);
+        e.preventDefault();
     };
     app.mouse_start = function(e) {
         const container = $('.screen_container'),
@@ -131,6 +132,7 @@ app.initializeDom = function() {
         touch.y = (touch.y / container.height());
         app.lastTouch = touch;
         app.addQueue("sm", touch.x, touch.y);
+        e.preventDefault();
     };
     $('body')
         .keydown(app.listenKeys)
