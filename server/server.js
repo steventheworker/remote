@@ -11,13 +11,18 @@ function processData(socketid, message) {
     let fn = events[event];
     if (fn) {
         if (typeof fn === 'string') fn = events[fn];
-        fn.apply(null, [sockets.get(socketid), ...data]);
+        const sock = sockets.get(socketid);
+        try {
+            fn.apply(null, [sock, ...data]);
+        } catch(e) {
+			const err = '|' + ('' + e.stack).replace(/\n/g, '\n|');
+			sock.write('|<< error: ' + e.message + '\n' + err);
+        }
     }
     console.log("<=" + message)
 }
 
-const sockjs_opts = {sockjs_url: "http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js"};
-const sockjs_echo = sockjs.createServer(sockjs_opts);
+const sockjs_echo = sockjs.createServer({sockjs_url: "./sockjs.min.js"});
 sockjs_echo.on('connection', function(socket) {
     if (!socket) return;
     if (!socket.remoteAddress) {/* SockJS sometimes fails to be able to cache the IP, port, and address from connection request headers. */
