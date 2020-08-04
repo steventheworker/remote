@@ -7,7 +7,7 @@
     "sockjs": "^0.3.21"
   },
   "scripts": {
-    "start": "cd server && node server.js"
+    "start": "node main.js"
   },
   "private": true
 }
