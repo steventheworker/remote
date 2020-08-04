@@ -1,11 +1,19 @@
 let {PythonShell} = require('python-shell');
-const generatePic = require('./generatePic');
-
 const fs = require('fs')
 const pythonPath = 'C:\\Users\\steven\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe';
 
+const generatePic = require('./generatePic');
+/*
+function generatePic() {
+    function ts() { //timestamp
+        let d = new Date();
+        return d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+    }
+    fs.writeFile('./client/beb.txt',`${ts()}`, () => {});
+    PythonShell.run('./controls/screeny.py', {}, err => {if (err) throw err; else 1; });
+}
+*/
 generatePic();
-
 module.exports = {
     'init': function(socket, event) {
         generatePic(function() {
@@ -35,5 +43,10 @@ module.exports = {
             if (err) fs.writeFileSync('es.txt', err + '|||' + results);
         });
         generatePic();
+    },
+    'heartbeat': function(socket, event) {
+        generatePic(() => {
+            socket.write('r');
+        });
     }
 };

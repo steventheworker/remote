@@ -19,7 +19,7 @@ app.prerender = function() {
     //if (screenHeight - window.innerHeight === 0) app.device = "ios";
 };
 app.send = function(data) {
-    if (!app.socket) return;
+    if (!app.socket) return; //todo: add to queue instead of ignoring
     app.socket.send(data);
     console.log("=>\""+data+'"');
 };

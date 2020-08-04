@@ -3,6 +3,7 @@ const sockets = new Map(),
     http = require('http'),
     sockjs = require('sockjs'),
     node_static = require('node-static');
+
 const events = require('./events');
 function processData(socketid, message) {
     let data = message.split('|');
@@ -40,7 +41,7 @@ sockjs_echo.on('connection', function(socket) {
             return;
         }
         const pipeIndex = message.indexOf('|');
-        if (pipeIndex < 0 || pipeIndex === message.length - 1) return;
+        if (pipeIndex < 0/* || pipeIndex === message.length - 1 */) return;
         processData(socketid, message);
     });
     socket.once('close', () => {

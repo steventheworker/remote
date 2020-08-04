@@ -2,8 +2,9 @@
 .git
 node_modules
 package-lock.json
-server/__pycache__
-server/controls/__pycache__
-server/client/screen.png
+__pycache__
+controls/__pycache__
+client/screen.png
 .idea
 venv/
+client/beb.txt
