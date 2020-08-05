@@ -1,7 +1,5 @@
-let {PythonShell} = require('python-shell');
-const fs = require('fs')
-const pythonPath = 'C:\\Users\\steven\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe';
-
+const { PythonShell } = require('python-shell');
+const fs = require('fs');
 const generatePic = require('./generatePic');
 /*
 function generatePic() {
@@ -28,8 +26,7 @@ module.exports = {
         if (event === 'ku') fnType = 'release';
         if (event === 'kd') fnType = 'press';
         PythonShell.run('./controls/'+fnType+'.py', {
-            args: [key, shift ? true : false],
-            pythonPath
+            args: [key, shift ? true : false]
         }, function (err, results) {
             if (err) fs.writeFileSync('es.txt', err + '|||' + results);
         });
@@ -37,8 +34,7 @@ module.exports = {
     },
     'es': function(socket, data) {
         PythonShell.run('./controls/es.py', {
-            args: [data],
-            pythonPath
+            args: [data]
         }, function (err, results) {
             if (err) fs.writeFileSync('es.txt', err + '|||' + results);
         });
