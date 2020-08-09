@@ -2,7 +2,8 @@ window.app = {
     queue: [],
     keys: {},
     send_t_millisecs: 175,
-    last_send_t: 0
+    last_send_t: 0,
+    screenTimeout: 5000
 };
 
 import {fn} from "./frankenquery.js";
@@ -146,13 +147,22 @@ app.initializeDom = function() {
             $('#is_mobile')[0].focus();
         });
 };
-app.screenTimeout = null;
+
 app.refreshScreen = function() {
-    document.screen.scr = './screen.png?t=' + (new Date() / 1);
+    const img = new Image();
+    img.src = './screen.png?t=' + (new Date()).getTime();
+    img.onload = function() {
+        $('#screen').replaceWith(img).attr({id: "screen", width: "100%", height: "100%"});
+    };
+};
+app.init_screen_loop = function() {
+    app.refreshScreen();
+    setTimeout(app.init_screen_loop, app.screenTimeout);
 };
 
 app.prerender();
 $(function() {
     app.initializeDom();
+    app.init_screen_loop();
     app.send('init');
 });

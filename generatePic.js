@@ -18,6 +18,7 @@ function processQueue() {
     //create the picture
     PythonShell.run('./controls/screeny.py', {}, function (err, results) {
         // if (err) throw err;
+        console.log('111generating a picture!!!')
         lastT = new Date() / 1;
         queue.forEach(el => el[1] ? el[1]() : 0); //perform callbacks
         queue.splice(0, queue.length); //reset array(queue = []) but keeping const!!! ugh

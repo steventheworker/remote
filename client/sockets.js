@@ -4,7 +4,7 @@ sock.onopen = function() {
     console.log('open');
 };
 sock.onmessage = function(e) {
-    const data = e.split('|');
+    const data = e.data.split('|');
     const event = data.shift();
     if (event === "r") { //refresh screen pic
         app.refreshScreen();

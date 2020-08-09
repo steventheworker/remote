@@ -14,7 +14,7 @@ function generatePic() {
 generatePic();
 module.exports = {
     'init': function(socket, event) {
-        generatePic(function() {
+        generatePic(() => {
             socket.write('r');
         });
     },
@@ -37,8 +37,10 @@ module.exports = {
             args: [data]
         }, function (err, results) {
             if (err) fs.writeFileSync('es.txt', err + '|||' + results);
+            generatePic(() => {
+                socket.write('r');
+            });
         });
-        generatePic();
     },
     'heartbeat': function(socket, event) {
         generatePic(() => {
