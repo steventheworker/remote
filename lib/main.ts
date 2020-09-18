@@ -1,13 +1,12 @@
-let socketCounter = 0;
-const sockets = new Map(),
-    http = require('http'),
-    sockjs = require('sockjs'),
-    node_static = require('node-static');
+import * as path from 'path';
+import * as sockjs from 'sockjs';
+import * as http from 'http';
+import * as node_static from 'node-static';
+import {events} from './events';
 
-const events = require('./events');
-function processData(socketid, message) {
-    let data = message.split('|');
-    const event = data.splice(0, 1);
+function processData(socketid:string, message:string) {
+    const data = message.split('|');
+    const event = data.splice(0, 1)[0];
     data.push(event);
     let fn = events[event];
     if (fn) {
@@ -16,15 +15,17 @@ function processData(socketid, message) {
         try {
             fn.apply(null, [sock, ...data]);
         } catch(e) {
-			const err = '|' + ('' + e.stack).replace(/\n/g, '\n|');
-			sock.write('|<< error: ' + e.message + '\n' + err);
+    		const err = '|' + ('' + e.stack).replace(/\n/g, '\n|');
+    		sock.write('|<< error: ' + e.message + '\n' + err);
         }
     }
     console.log("<=" + message)
 }
 
+const sockets = new Map();
+let socketCounter = 0;
 const sockjs_echo = sockjs.createServer({sockjs_url: "./sockjs.min.js"});
-sockjs_echo.on('connection', function(socket) {
+sockjs_echo.on('connection', socket => {
     if (!socket) return;
     if (!socket.remoteAddress) {/* SockJS sometimes fails to be able to cache the IP, port, and address from connection request headers. */
         try {socket.destroy();} catch (e) {}
@@ -50,7 +51,7 @@ sockjs_echo.on('connection', function(socket) {
     });
 });
 
-const static_directory = new node_static.Server(__dirname + '/client/');
+const static_directory = new node_static.Server(path.join(__dirname, '../../'));
 const server = http.createServer();
 server.addListener('request', function(req, res) {
     static_directory.serve(req, res);

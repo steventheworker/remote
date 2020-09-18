@@ -1,13 +1,38 @@
 {
   "name": "pynode-rat",
-  "version": "0.0.0-unreleasable",
-  "dependencies": {
-    "node-static": "0.7.11",
-    "python-shell": "^2.0.1",
-    "sockjs": "^0.3.21"
-  },
+  "version": "1.0.0",
+  "description": "get your remote administration tooling on, right now, with this shit. using a sockjs server and pynput to execute keyboard/mouse commands, u can do enything with this shit. 💩.",
+  "main": "index.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "cd dist/lib && node main.js",
+    "dev": "concurrently \"tsc -w\" \"webpack-dev-server --config webpack.config.js\" \"cd dist/lib && nodemon main.js\"",
+    "server": "concurrently \"tsc -w\"  \"cd dist/lib && nodemon main.js\"",
+    "serve": "webpack-dev-server --config webpack.config.js",
+    "build": "webpack"
   },
-  "private": true
+  "author": "steventheworker",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/html-webpack-plugin": "^3.2.3",
+    "@types/node-static": "^0.7.5",
+    "@types/sockjs": "^0.3.32",
+    "@types/sockjs-client": "^1.1.1",
+    "@webpack-cli/init": "^0.3.0",
+    "concurrently": "^5.3.0",
+    "css-loader": "^4.3.0",
+    "html-webpack-plugin": "^4.4.1",
+    "nodemon": "^2.0.4",
+    "style-loader": "^1.2.1",
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "node-static": "^0.7.11",
+    "python-shell": "^2.0.1",
+    "sockjs": "^0.3.21",
+    "sockjs-client": "^1.5.0"
+  }
 }

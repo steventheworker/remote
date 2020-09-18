@@ -8,3 +8,5 @@ client/screen.png
 .idea
 venv/
 client/beb.txt
+dist
+index.html

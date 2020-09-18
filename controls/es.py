@@ -2,9 +2,14 @@ import controller
 import sys
 import time
 
-from win32api import GetSystemMetrics
-screen_width = GetSystemMetrics(0)
-screen_height = GetSystemMetrics(1)
+from screeninfo import get_monitors
+screen = get_monitors()[0]
+screen_width = screen.width
+screen_height = screen.height
+
+#from win32api import GetSystemMetrics
+#screen_width = GetSystemMetrics(0)
+#screen_height = GetSystemMetrics(1)
 
 events = sys.argv[1].split(',')
 for _e in events:
