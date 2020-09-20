@@ -7,10 +7,6 @@ screen = get_monitors()[0]
 screen_width = screen.width
 screen_height = screen.height
 
-#from win32api import GetSystemMetrics
-#screen_width = GetSystemMetrics(0)
-#screen_height = GetSystemMetrics(1)
-
 events = sys.argv[1].split(',')
 for _e in events:
     e = _e.split('~')
@@ -22,6 +18,8 @@ for _e in events:
         shift = e[3]
         controller.press(key, type=numType, shift=shift)
     else: #mouse event
+        #scroll
+        if e[1] == "scrllms": controller.scroll_mouse(screen_width * float(e[2]), screen_height * float(e[3]))
         #move, set
         if e[1] == "mm": controller.move_mouse(screen_width * float(e[2]), screen_height * float(e[3]))
         if e[1] == "sm": controller.set_mouse(screen_width * float(e[2]), screen_height * float(e[3]))

@@ -74,6 +74,8 @@ def press(char, type=3, shift='false'):
     else:
         pressRelease(char, type)
 
+def scroll_mouse(Dx, Dy):
+    mouse.scroll(Dx, Dy)
 def move_mouse(Dx, Dy):
     mouse.move(Dx, Dy)
 def set_mouse(x, y):

@@ -8,7 +8,7 @@ interface _Touch {
     x?: number;
     y?: number;
 }
-interface Event {
+interface QueueEvent {
     pressRelease?: string;
     key?: string;
     shift?: boolean;
@@ -17,7 +17,7 @@ interface Event {
 }
 export default class App {
     lastTouch: _Touch = {};
-    queue: Event[] = [];
+    queue: QueueEvent[] = [];
     keyCodes = KeyCodes;
     keys: any = {};
     send_t_millisecs = 175;
@@ -36,11 +36,13 @@ export default class App {
         $('body')
             .keydown(this.listenKeys)
             .keyup(this.listenKeys)
-            .on("textInput", "#is_mobile", this.listenKeys)
+            .on("contextmenu", ".screen_container", (e:Event) => e.preventDefault())
+            .on("mousewheel DOMMouseScroll", ".screen_container", this.mouse_scroll)
             .on("mouseup", ".screen_container", this.mouse_up)
             .on("mousedown", ".screen_container", this.mouse_down)
             .on("mouseover", ".screen_container", this.mouse_start)
             .on("mousemove", ".screen_container", this.mouse_move)
+            .on("textInput", "#is_mobile", this.listenKeys)
             .on('click touchend', function() {
                 $('#is_mobile')[0].focus();
             });
@@ -75,7 +77,6 @@ export default class App {
     }
     refreshScreen() {
         this.nextShot((img) => {
-            //$('#screen').replaceWith(img).attr({id: "screen", width: "100%", height: "100%"});
             $('#screen').attr("id", "_oldScreen");
             $('.screen_container').append(img);
             $('#screen').attr({width: "100%", height: "100%"});
@@ -128,6 +129,12 @@ export default class App {
          }
     }
     //event handlers
+    mouse_scroll(e: any) {
+        const vals = e.originalEvent;
+        const valX = vals.deltaX;
+        const valY = vals.deltaY;
+        app.addQueue("scrllms", -valX / 100, -valY / 100);
+    }
     mouse_down(e: any) {
         if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
         const event_type = "p" + ((e.which === 1) ? "l" : "r"); //p = press = down
@@ -189,8 +196,7 @@ export default class App {
     }
 }
 
-const app = new App();
-window.app = app;window.$ = $;
+//initialize
 $(function() {
     $('body').html(`
         <textarea type="text" id="is_mobile"></textarea>
@@ -203,6 +209,10 @@ $(function() {
     app.send('init');
 });
 
+//globals
+const app = new App();
+window.app = app;
+window.$ = $;
 declare global {
     interface Window {
         key_processing?: ReturnType<typeof setTimeout>;

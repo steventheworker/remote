@@ -26,6 +26,7 @@ function processQueue() {
         const t = (new Date()).getTime();
         console.log(((t-lastT)/1000)+'s\t-\tsince last pic');
         console.log(((t-firstT) / 1000)+'s\t-\tsince first pic');
+        console.log('-------------------------------------');
         lastT = (new Date()).getTime();
     });
 }
