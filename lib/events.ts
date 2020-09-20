@@ -1,34 +1,27 @@
 import {PythonShell} from 'python-shell';
-import { Connection } from 'sockjs';
 import {generatePic} from './generatePic';
 
 generatePic();
-
 interface Events {
-    [index: string]: any;
-    heartbeat: { (socket: Connection , ...data: any): void },
-    init: { (socket: Connection, ...data: any): void },
-    es: { (socket: Connection, es: string, ...data: any): void }
+    [index: string]: {(...a: any[]): any} | string;
+    init: { (user: User, ...data: any): void },
+    es: { (user: User, es: string, ...data: any): void }
 }
-export const events:Events = {
-    'init': function(socket, event) {
+const events:Events = {
+    init: function(user, event) {
         generatePic(() => {
-            socket.write('r');
+            user.send('r');
         });
     },
-    'es': function(socket, data) {
+    es: function(user, data) {
         PythonShell.run('../../controls/es.py', {
             args: [data]
         }, function (err, results) {
             if (err) {const fs = require('fs');fs.writeFileSync('es.txt', err + '|||' + results);}
             generatePic(() => {
-                socket.write('r');
+                user.send('r');
             });
-        });
-    },
-    heartbeat: (socket, event) => {
-        generatePic(() => {
-            socket.write('r');
         });
     }
 };
+export default events;

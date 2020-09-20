@@ -2,27 +2,16 @@ import * as path from 'path';
 import * as sockjs from 'sockjs';
 import * as http from 'http';
 import * as node_static from 'node-static';
-import {events} from './events';
+import {Users} from './users';
+import * as helpers from './helpers';
 
-function processData(socketid:string, message:string) {
-    const data = message.split('|');
-    const event = data.splice(0, 1)[0];
-    data.push(event);
-    let fn = events[event];
-    if (fn) {
-        if (typeof fn === 'string') fn = events[fn];
-        const sock = sockets.get(socketid);
-        try {
-            fn.apply(null, [sock, ...data]);
-        } catch(e) {
-    		const err = '|' + ('' + e.stack).replace(/\n/g, '\n|');
-    		sock.write('|<< error: ' + e.message + '\n' + err);
-        }
-    }
-    console.log("<=" + message)
-}
+//some globals, rest in global .ts files
+declare const global: any;
+global.helpers = helpers;
+global.toID = helpers.toID;
+global.Users = Users;
 
-const sockets = new Map();
+//set up sockets, todo: make global & set up in ./sockets.ts
 let socketCounter = 0;
 const sockjs_echo = sockjs.createServer({sockjs_url: "./sockjs.min.js"});
 sockjs_echo.on('connection', socket => {
@@ -31,9 +20,9 @@ sockjs_echo.on('connection', socket => {
         try {socket.destroy();} catch (e) {}
         return;
     }
-    const socketid = '' + (++socketCounter);
-    sockets.set(socketid, socket);
-    let socketip = socket.remoteAddress;
+    const socketid = '' + (++socketCounter),
+        ip = socket.remoteAddress;
+    Users.socketConnect(socketid, socket, ip);
     socket.on('data', message => {
         if (!message) return;
         if (message.length > (100 * 1024)) {
@@ -43,11 +32,11 @@ sockjs_echo.on('connection', socket => {
         }
         const pipeIndex = message.indexOf('|');
         if (pipeIndex < 0/* || pipeIndex === message.length - 1 */) return;
-        processData(socketid, message);
+        Users.socketProcessReceivedData(socketid, message)
     });
     socket.once('close', () => {
         console.log('... exit ...')
-        sockets.delete(socketid);
+        Users.socketDisconnect(socketid);
     });
 });
 
