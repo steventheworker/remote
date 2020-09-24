@@ -9,4 +9,4 @@ client/screen.png
 venv/
 client/beb.txt
 dist
-index.html
+/index.html
