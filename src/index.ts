@@ -33,15 +33,16 @@ export default class App {
         this.socket.app = this;
     }
     initializeDom() {
+        const dev = this.device;
         $('body')
             .keydown(this.listenKeys)
             .keyup(this.listenKeys)
             .on("contextmenu", ".screen_container", (e:Event) => e.preventDefault())
             .on("mousewheel DOMMouseScroll", ".screen_container", this.mouse_scroll)
-            .on("mouseup", ".screen_container", this.mouse_up)
-            .on("mousedown", ".screen_container", this.mouse_down)
+            .on(dev === "desktop" ? "mouseup" : "touchend", ".screen_container", this.mouse_up)
+            .on(dev === "desktop" ? "mousedown" : "touchstart", ".screen_container", this.mouse_down)
+            .on(dev === "desktop" ? "mousemove" : "touchmove", ".screen_container", this.mouse_move)
             .on("mouseover", ".screen_container", this.mouse_start)
-            .on("mousemove", ".screen_container", this.mouse_move)
             .on("textInput", "#is_mobile", this.listenKeys)
             .on('click touchend', function() {
                 $('#is_mobile')[0].focus();
@@ -137,12 +138,12 @@ export default class App {
     }
     mouse_down(e: any) {
         if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
-        const event_type = "p" + ((e.which === 1) ? "l" : "r"); //p = press = down
+        const event_type = "p" + ((e.which === 1 || e.which === 0) ? "l" : "r"); //p = press = down
         app.addQueue(event_type);
     }
     mouse_up(e: any) {
         if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
-        const event_type = "r" + ((e.which === 1) ? "l" : "r"); //r = release = up
+        const event_type = "r" + ((e.which === 1 || e.which === 0) ? "l" : "r"); //r = release = up
         app.addQueue(event_type);
     }
     mouse_move(e: any) {

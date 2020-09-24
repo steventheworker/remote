@@ -5,7 +5,8 @@ module.exports = {
   mode: "development",
   devServer: {
     host: '0.0.0.0',
-    contentBase: './'
+    contentBase: './',
+    writeToDisk: true
   },
   entry: './src/index.ts',
   devtool: 'inline-source-map',
@@ -30,5 +31,8 @@ module.exports = {
     filename: 'dist/bundle.js',
     path: path.resolve(__dirname, './'),
   },
-  plugins: [new HtmlWebpackPlugin()]
+  plugins: [new HtmlWebpackPlugin({
+    title: 'Steven\'s Remote Controller',
+    template: './src/index.html'
+  })]
 }

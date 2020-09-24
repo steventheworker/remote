@@ -4,6 +4,7 @@ body, html {
     width: 100%;
     height: 100%;
     background: grey;
+    touch-action: none;
 }
 #is_mobile {
     position: absolute;
