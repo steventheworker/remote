@@ -8,10 +8,8 @@ body, html {
 }
 #is_mobile {
     position: absolute;
-    left: 50%;
-    /*
+    bottom: 50%;
     left: -1000px;
-    /**/
     visibility: hidden;
 }
 .screen_container {
@@ -28,4 +26,9 @@ body, html {
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
+}
+.screen-cover {
+    width: inherit;
+    height: 99.9%;
+    position: absolute;
 }

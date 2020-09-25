@@ -24,6 +24,8 @@ export default class App {
     last_send_t = 0;
     screenTimeout = 5000;
     socket: WebSocket = Socket;
+    focused: boolean;
+    gesturing: {dir?: {x: number, y: number}, counter?: any} = {};
     device: string = (function is_mobile_device() {
         //@ts-ignore
         const a = navigator.userAgent || navigator.vendor || window.opera;
@@ -35,18 +37,21 @@ export default class App {
     initializeDom() {
         const dev = this.device;
         $('body')
+            .on("textInput", "#is_mobile", this.listenKeys)
             .keydown(this.listenKeys)
             .keyup(this.listenKeys)
-            .on("contextmenu", ".screen_container", (e:Event) => e.preventDefault())
+            .on("contextmenu", ".screen_container", (e: Event) => e.preventDefault())
             .on("mousewheel DOMMouseScroll", ".screen_container", this.mouse_scroll)
-            .on(dev === "desktop" ? "mouseup" : "touchend", ".screen_container", this.mouse_up)
-            .on(dev === "desktop" ? "mousedown" : "touchstart", ".screen_container", this.mouse_down)
-            .on(dev === "desktop" ? "mousemove" : "touchmove", ".screen_container", this.mouse_move)
-            .on("mouseover", ".screen_container", this.mouse_start)
-            .on("textInput", "#is_mobile", this.listenKeys)
-            .on('click touchend', function() {
-                $('#is_mobile')[0].focus();
+            .on(dev === "desktop" ? "mouseup" : "touchend", this.mouse_up)
+            .on(dev === "desktop" ? "mouseover" : "touchstart", ".screen_container", this.mouse_start)
+            .on(dev === "desktop" ? "mousedown" : "touchstart", this.mouse_down)
+            .on(dev === "desktop" ? "mousemove" : "touchmove", this.mouse_move)
+            .on('blur', '#is_mobile', () => {
+                app.hideKeyboard();
             });
+        $(window).blur(function() {
+            app.hideKeyboard();
+        })
     }
     addQueue(...a: any[]) {
         const [pressRelease, key, shift] = a;
@@ -136,17 +141,96 @@ export default class App {
         const valY = vals.deltaY;
         app.addQueue("scrllms", -valX / 100, -valY / 100);
     }
+    withinBounds(e: any) {
+        const container = $('.screen_container'),
+            off = container.offset();
+        const min = off;
+        const max = {...off};
+        max.left += container.width();
+        max.top += container.height();
+        let val = true;
+        const touches = e.originalEvent.touches;
+        const it = touches && Array.prototype.slice.call(touches) || [e];
+        it.forEach((t: Touch) => {
+            if (t.pageX > min.left &&
+                t.pageY > min.top &&
+                t.pageY < max.top &&
+                t.pageX < max.left) {} else val = false;
+        });
+        return val;
+    }
+    focusKeyboard() {
+        $('#is_mobile').show()[0].focus();
+        this.focused = true;
+    }
+    hideKeyboard() {
+        this.focused = false;
+        $('#is_mobile').hide();
+    }
+    UI_down(e: any) {
+        const wb = this.withinBounds(e);
+        const touches = e.originalEvent.touches || [e],
+              t0 = touches[0], t1 = touches[1];
+        if (touches.length === 2 && !wb && !this.gesturing.dir) {
+            //two touches on opposite sides of #screen @outsideBounds = show keyboard
+            if (Math.abs(t0.pageX - t1.pageX) > 0.4 * $('body').width()) this.focusKeyboard();
+            //or two touches, same side @outsideBounds = rightclick/leftclick
+            if (Math.abs(t0.pageX - t1.pageX) <= $('.screen_container').offset().left) {
+                const isLeftClick = t1.pageX < 0.5 * $('body').width();
+                this.addQueue("p" + (isLeftClick ? "l" : "r"));
+                this.addQueue("r" + (isLeftClick ? "l" : "r"));
+            }
+        }
+        return wb;
+    }
+    UI_up(e: any) {
+        this.gesturing = {};
+        return this.withinBounds(e);
+    }
+    UI_move(e: any) {
+        const wb = this.withinBounds(e);
+        const touches = e.originalEvent.touches || [e];
+        if ((touches.length === 2 && !wb) || app.gesturing.dir) {
+            //scrolling with two fingers
+            const plusOrMinusX = (app.lastTouch.x - e.pageX) > 0 ? -1 : 1;
+            const plusOrMinusY = (app.lastTouch.y - e.pageY) > 0 ? 1 : -1;
+            const dir = app.gesturing.dir || {x: null, y: null};
+            let pOmX = dir.x || plusOrMinusX,
+                pOmY = dir.y || plusOrMinusY;
+            const counter = app.gesturing.counter || {x: null, y: null};
+            if (pOmX !== plusOrMinusX) counter.x++;
+            if (pOmY !== plusOrMinusY) counter.y++;
+            if (counter.x === 3) {
+                counter.x = 0;
+                pOmX = plusOrMinusX;
+                app.gesturing.dir.x = pOmX;
+            }
+            if (counter.y === 3) {
+                counter.y = 0;
+                pOmY = plusOrMinusY;
+                app.gesturing.dir.y = pOmY;
+            }
+            app.addQueue("scrllms", -1/20*(pOmX), -1/20*(pOmY));
+            app.lastTouch = {x: e.pageX, y: e.pageY};
+            if (!app.gesturing.dir) app.gesturing = {counter: {x: 0, y: 0}, dir: {x: plusOrMinusX, y: plusOrMinusY}};
+            return false;
+        }
+        return wb;
+    }
     mouse_down(e: any) {
-        if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
+        if (!app.UI_down(e)) return;
+        if (e.which === 2) return;
         const event_type = "p" + ((e.which === 1 || e.which === 0) ? "l" : "r"); //p = press = down
         app.addQueue(event_type);
     }
     mouse_up(e: any) {
-        if (e.which === 2) return; //todo: scrollwheel "m" for middle, perhaps?
+        if (!app.UI_up(e)) return;
+        if (e.which === 2) return;
         const event_type = "r" + ((e.which === 1 || e.which === 0) ? "l" : "r"); //r = release = up
         app.addQueue(event_type);
     }
     mouse_move(e: any) {
+        if (!app.UI_move(e)) return;
         const container = $('.screen_container'),
             off = container.offset();
         const touch = {x: e.pageX - off.left, y: e.pageY - off.top};
@@ -202,6 +286,7 @@ $(function() {
     $('body').html(`
         <textarea type="text" id="is_mobile"></textarea>
         <div class="screen_container">
+            <div class="screen-cover"></div>
             <img id="screen" src="${app.nextShotURL()}" />
         </div>
     `).attr('ontouchstart', '');
