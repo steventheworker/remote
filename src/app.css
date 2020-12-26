@@ -1,34 +1,82 @@
-body, html {
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: grey;
-    touch-action: none;
+body,
+html {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: grey;
+  touch-action: none;
 }
 #is_mobile {
-    position: absolute;
-    bottom: 50%;
-    left: -1000px;
-    visibility: hidden;
+  position: absolute;
+  bottom: 50%;
+  left: -1000px;
+  visibility: hidden;
 }
 .screen_container {
-    background: black;
-    width: 75%;
-    height: 100%;
-    margin: auto;
-    box-sizing: border-box;
-    border: 1px dashed silver;
+  background: black;
+  width: 75%;
+  height: 100%;
+  margin: auto;
+  box-sizing: border-box;
+  border: 1px dashed silver;
+  position: relative;
+  overflow: hidden;
 }
 .screen_container img {
-    width: 100%;
-    height: 100%;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 .screen-cover {
-    width: inherit;
-    height: 99.9%;
-    position: absolute;
+  width: inherit;
+  height: 99.9%;
+  position: absolute;
+}
+
+/* cross hair */
+.magnification {
+  z-index: 9000;
+  width: 196.88px;
+  height: 196.88px;
+  margin-top: -98.44px;
+  margin-left: -98.44px;
+  position: absolute;
+  border-radius: 100%;
+  background-repeat: no-repeat;
+  background-color: black;
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85),
+    0 0 7px 7px rgba(0, 0, 0, 0.25), inset 0 0 40px 2px rgba(0, 0, 0, 0.25);
+  display: none;
+}
+.cursor {
+  width: 7px;
+  height: 7px;
+  margin-left: -3px;
+  margin-top: -3px;
+  background: red;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+}
+.cursorLineHorizontal,
+.cursorLineVertical {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: green;
+}
+.cursorLineHorizontal {
+  margin-left: -50%;
+  margin-top: -0.5px;
+  width: 100%;
+  height: 1px;
+}
+.cursorLineVertical {
+  margin-top: -50%;
+  margin-left: -0.5px;
+  height: 100%;
+  width: 1px;
 }
